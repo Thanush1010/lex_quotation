@@ -69,54 +69,72 @@ function App() {
   };
 
   const generateDocument = async (templateType) => {
-    if (!clientData) {
-      alert('Please fill client details first');
-      setActiveStep('client');
+  if (!clientData) {
+    alert('Please fill client details first');
+    setActiveStep('client');
+    return;
+  }
+
+  try {
+    // Filter services so only the clicked category is included
+    const filteredServices = selectedServices.filter(
+      s => (s.service.id || '').toLowerCase() === templateType
+    );
+
+    if (filteredServices.length === 0) {
+      alert(`No services selected for ${templateOptions[templateType].label}`);
       return;
     }
 
-    try {
-      const gst = totals.professionalFees * 0.18;
-      const tds = totals.professionalFees * 0.10;
-      const grandTotal = totals.total + gst - tds;
+    // Calculate totals from filtered list
+    const subtotal = filteredServices.reduce((sum, s) => sum + (s.total || 0), 0);
+    const professionalFeesSum = filteredServices.reduce((sum, s) => sum + (s.professionalFee || 0), 0);
+    const gst = professionalFeesSum * 0.18;
+    const tds = professionalFeesSum * 0.10;
+    const grandTotal = subtotal + gst - tds;
 
-      // Fetch the appropriate template based on service type
-      const response = await fetch(`/templates/${templateType}-template.docx`);
-      const arrayBuffer = await response.arrayBuffer();
-      const zip = new PizZip(arrayBuffer);
-      const doc = new Docxtemplater(zip, { 
-        paragraphLoop: true, 
-        linebreaks: true 
-      });
+    // Fetch the matching template file
+    const response = await fetch(`/templates/${templateType}-template.docx`);
+    if (!response.ok) throw new Error(`Template not found: ${templateType}-template.docx`);
+    const arrayBuffer = await response.arrayBuffer();
+    const zip = new PizZip(arrayBuffer);
+    const doc = new Docxtemplater(zip, { paragraphLoop: true, linebreaks: true });
 
-      const data = {
-        ...clientData,
-        quotationNumber: `LXR-${Date.now().toString().slice(-6)}`,
-        quotationDate: new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' }),
-        services: selectedServices.map((service, index) => ({
-          srNo: index + 1,
-          name: service.subservice.name,
-          officialFee: service.officialFee.toLocaleString('en-IN'),
-          professionalFee: service.professionalFee.toLocaleString('en-IN'),
-          miscFee: service.miscFee.toLocaleString('en-IN'),
-          total: service.total.toLocaleString('en-IN')
-        })),
-        subtotal: totals.total.toLocaleString('en-IN'),
-        gst: gst.toLocaleString('en-IN'),
-        tds: tds.toLocaleString('en-IN'),
-        grandTotal: grandTotal.toLocaleString('en-IN'),
-        terms: templateOptions[templateType].terms
-      };
+    // Build data for template
+    const data = {
+      ...clientData,
+      quotationNumber: `LXR-${Date.now().toString().slice(-6)}`,
+      quotationDate: new Date().toLocaleDateString('en-IN', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      }),
+      services: filteredServices.map((service, index) => ({
+        srNo: index + 1,
+        name: service.subservice.name,
+        officialFee: (service.officialFee || 0).toLocaleString('en-IN'),
+        professionalFee: (service.professionalFee || 0).toLocaleString('en-IN'),
+        miscFee: (service.miscFee || 0).toLocaleString('en-IN'),
+        total: (service.total || 0).toLocaleString('en-IN')
+      })),
+      subtotal: subtotal.toLocaleString('en-IN'),
+      gst: gst.toLocaleString('en-IN'),
+      tds: tds.toLocaleString('en-IN'),
+      grandTotal: grandTotal.toLocaleString('en-IN'),
+      terms: templateOptions[templateType].terms
+    };
 
-      doc.render(data);
-      const out = doc.getZip().generate({ type: "blob" });
-      saveAs(out, `Quotation-${templateOptions[templateType].label}-${data.quotationNumber}.docx`);
+    // Generate and save docx
+    doc.render(data);
+    const out = doc.getZip().generate({ type: "blob" });
+    saveAs(out, `Quotation-${templateOptions[templateType].label}-${data.quotationNumber}.docx`);
 
-    } catch (error) {
-      console.error("Error generating document:", error);
-      alert("Document generation failed: " + error.message);
-    }
-  };
+  } catch (error) {
+    console.error("Error generating document:", error);
+    alert("Document generation failed: " + error.message);
+  }
+};
+
 
   return (
     <div className="min-h-screen bg-blue-50 p-4 md:p-8">

@@ -1,6 +1,6 @@
 export const services = [
   {
-    id: 'ip',
+    id: 'allip',
     name: 'All IP',
     icon: '⚖️',
     subservices: [
