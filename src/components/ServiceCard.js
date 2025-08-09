@@ -13,14 +13,14 @@ const ServiceCard = ({ service, onFeeUpdate, onSelectSubservice }) => {
     newEditableFees[index][field] = value;
     setEditableFees(newEditableFees);
 
-    onFeeUpdate(service.id, index, field, value === '' ? null : Number(value));
+    onFeeUpdate(service.id, index, field, value === '' ? null : numericValue);
   };
 
   const calculateTotal = (subservice, index) => {
     const official = subservice.officialFee || 0;
     const professional = editableFees[index]?.professionalFee ?? subservice.professionalFee ?? 0;
     const misc = editableFees[index]?.miscFee ?? subservice.miscFee ?? 0;
-    return Number(official) + Number(professional) + Number(misc);
+    return official + professional + misc;
   };
 
   return (
@@ -47,7 +47,7 @@ const ServiceCard = ({ service, onFeeUpdate, onSelectSubservice }) => {
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Particulars</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Official Fee (₹)</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Professional Fee (₹)</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">reimbursement (₹)</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Expenses (₹)</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total (₹)</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
                 </tr>
@@ -64,7 +64,7 @@ const ServiceCard = ({ service, onFeeUpdate, onSelectSubservice }) => {
                     <td className="px-4 py-3 whitespace-nowrap">
                       <input
                         type="text"
-                        value={subservice.officialFee}
+                        value={subservice.officialFee?.toLocaleString('en-IN') || '0'}
                         readOnly
                         className="w-full bg-gray-100 p-2 rounded text-sm border-none"
                       />
@@ -94,7 +94,7 @@ const ServiceCard = ({ service, onFeeUpdate, onSelectSubservice }) => {
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap text-sm">
                       <button
-                        className="text-blue-600 underline text-xs hover:text-blue-800"
+                        className="px-3 py-1 bg-blue-600 text-white rounded-md text-xs hover:bg-blue-700 transition-colors"
                         onClick={() =>
                           onSelectSubservice(
                             service,

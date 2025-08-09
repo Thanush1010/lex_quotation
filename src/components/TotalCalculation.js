@@ -5,7 +5,7 @@ const TotalCalculation = ({ selectedServices }) => {
 
   const totals = selectedServices.reduce((acc, item) => {
     acc.total += item.total;
-    acc.professionalFees += (item.subservice.professionalFee || 0);
+    acc.professionalFees += (item.professionalFee || 0);
     return acc;
   }, { total: 0, professionalFees: 0 });
 
@@ -31,11 +31,11 @@ const TotalCalculation = ({ selectedServices }) => {
             </tr>
             <tr className="hover:bg-gray-50">
               <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">GST (18%)</td>
-              <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500"> ₹{gst.toLocaleString('en-IN')}</td>
+              <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">₹{gst.toLocaleString('en-IN')}</td>
             </tr>
             <tr className="hover:bg-gray-50">
               <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">TDS (10%)</td>
-              <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500"> ₹{tds.toLocaleString('en-IN')}</td>
+              <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">₹{tds.toLocaleString('en-IN')}</td>
             </tr>
             <tr className="bg-gray-50 font-medium">
               <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Grand Total</td>
