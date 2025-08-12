@@ -48,20 +48,35 @@ function App() {
   };
 
   const handleSelectSubservice = (service, subservice) => {
-    const isAlreadySelected = selectedServices.some(
-      item => item.service.id === service.id && item.subservice.name === subservice.name
-    );
-
-    if (!isAlreadySelected) {
-      setSelectedServices(prev => [...prev, {
-        service,
-        subservice,
-        total: subservice.total || 0,
-        officialFee: subservice.officialFee || 0,
-        professionalFee: subservice.professionalFee || 0,
-        miscFee: subservice.miscFee || 0
-      }]);
-    }
+    setSelectedServices(prev => {
+      const idx = prev.findIndex(item => item.service.id === service.id && item.subservice.name === subservice.name);
+      if (idx === -1) {
+        // Not present, add new
+        return [
+          ...prev,
+          {
+            service,
+            subservice,
+            total: subservice.total || 0,
+            officialFee: subservice.officialFee || 0,
+            professionalFee: subservice.professionalFee || 0,
+            miscFee: subservice.miscFee || 0
+          }
+        ];
+      } else {
+        // Already present, update values
+        const updated = [...prev];
+        updated[idx] = {
+          ...updated[idx],
+          subservice,
+          total: subservice.total || 0,
+          officialFee: subservice.officialFee || 0,
+          professionalFee: subservice.professionalFee || 0,
+          miscFee: subservice.miscFee || 0
+        };
+        return updated;
+      }
+    });
   };
 
   const handleRemoveService = (index) => {

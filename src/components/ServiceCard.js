@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import '../../src/blink.css';
 import { motion, AnimatePresence } from "framer-motion";
 
 const expandAnim = {
@@ -44,9 +45,35 @@ const ServiceCard = ({ service, onSelectSubservice, selectedServices }) => {
   const [fees, setFees] = useState(
     service.subservices.map(sub => ({
       professionalFee: 0,
-  reimbursement: 0
+      reimbursement: 0
     }))
   );
+
+  // Blink state for each row
+  const [blinkRows, setBlinkRows] = useState(service.subservices.map(() => false));
+
+  // Helper to trigger blink for a row
+  const triggerBlink = (idx) => {
+    setBlinkRows(prev => {
+      const updated = [...prev];
+      updated[idx] = false;
+      return updated;
+    });
+    setTimeout(() => {
+      setBlinkRows(prev => {
+        const updated = [...prev];
+        updated[idx] = true;
+        return updated;
+      });
+    }, 10);
+    setTimeout(() => {
+      setBlinkRows(prev => {
+        const updated = [...prev];
+        updated[idx] = false;
+        return updated;
+      });
+    }, 510);
+  };
 
   const [editState, setEditState] = useState(
     service.subservices.map(() => ({
@@ -183,17 +210,16 @@ const ServiceCard = ({ service, onSelectSubservice, selectedServices }) => {
                     </tr>
                   </thead>
                   <tbody>
-                    {service.subservices.map((sub, idx) => (
-                      <motion.tr
-                        key={idx}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 20 }}
-                        transition={{ duration: 0.3, delay: idx * 0.05 }}
-                        className={
-                          `transition-colors duration-200 ${isSubserviceSelected(sub) ? 'bg-green-900/20 border-l-4 border-green-500' : (idx % 2 === 0 ? 'bg-white/5' : 'bg-white/10')} hover:bg-white/20`
-                        }
-                      >
+                    {service.subservices.map((sub, idx) => {
+                        return (
+                          <motion.tr
+                            key={idx}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: 20 }}
+                            transition={{ duration: 0.3, delay: idx * 0.05 }}
+                            className={`transition-colors duration-200 ${isSubserviceSelected(sub) ? 'bg-green-900/20 border-l-4 border-green-500' : (idx % 2 === 0 ? 'bg-white/5' : 'bg-white/10')} hover:bg-white/20 ${blinkRows[idx] ? 'blink-bg' : ''}`}
+                          >
                         <td className="px-5 py-3 font-medium text-gray-200">{sub.name}</td>
                         <td className="px-5 py-3 text-gray-300 font-semibold">{sub.officialFee}</td>
                         <td className="px-5 py-3">
@@ -201,9 +227,8 @@ const ServiceCard = ({ service, onSelectSubservice, selectedServices }) => {
                             type="number"
                             value={fees[idx]?.professionalFee || ""}
                             onChange={e => handleFeeChange(idx, "professionalFee", e.target.value)}
-                            className={`w-24 p-2 border rounded-lg focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 bg-white/10 shadow-sm text-gray-200 ${editState[idx].stage === 'confirmed' ? 'border-green-500/50 bg-green-900/20 text-green-400' : 'border-white/20'}`}
+                            className={`w-24 p-2 border rounded-lg focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 bg-white/10 shadow-sm text-gray-200 border-white/20`}
                             min="0"
-                            disabled={editState[idx].stage !== 'editing'}
                           />
                         </td>
                         <td className="px-5 py-3">
@@ -211,10 +236,9 @@ const ServiceCard = ({ service, onSelectSubservice, selectedServices }) => {
                             type="number"
                             value={fees[idx]?.reimbursement || ""}
                             onChange={e => handleFeeChange(idx, "reimbursement", e.target.value)}
-                            className={`w-24 p-2 border rounded-lg focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 bg-white/10 shadow-sm text-gray-200 ${editState[idx].stage === 'confirmed' ? 'border-green-500/50 bg-green-900/20 text-green-400' : 'border-white/20'}`}
+                            className={`w-24 p-2 border rounded-lg focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 bg-white/10 shadow-sm text-gray-200 border-white/20`}
                             min="0"
                             aria-label="Reimbursement"
-                            disabled={editState[idx].stage !== 'editing'}
                           />
                         </td>
                         <td className="px-5 py-3 font-bold text-amber-400">
@@ -223,26 +247,31 @@ const ServiceCard = ({ service, onSelectSubservice, selectedServices }) => {
                         <td className="px-5 py-3">
                           <button
                             className={`px-4 py-2 rounded-lg font-semibold shadow transition-all duration-300 flex items-center gap-2
-                              ${editState[idx].stage === 'idle' ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:from-amber-600 hover:to-orange-600' : ''}
-                              ${editState[idx].stage === 'editing' ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:from-amber-600 hover:to-orange-600' : ''}
-                              ${editState[idx].stage === 'confirmed' ? 'bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700' : ''}`}
-                            onClick={() => handleChecklistToggle(sub, idx)}
-                            title={
-                              editState[idx].stage === 'idle' ? 'Add and enter values' :
-                              editState[idx].stage === 'editing' ? 'Confirm selection' :
-                              'Change values'
-                            }
+                              ${isSubserviceSelected(sub) ? 'bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700' : 'bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:from-amber-600 hover:to-orange-600'}`}
+                            onClick={() => {
+                              onSelectSubservice(service, {
+                                ...sub,
+                                officialFee: sub.officialFee,
+                                professionalFee: fees[idx].professionalFee,
+                                reimbursement: fees[idx].reimbursement,
+                                miscFee: fees[idx].reimbursement, // for compatibility
+                                total: Number(sub.officialFee) + Number(fees[idx].professionalFee) + Number(fees[idx].reimbursement)
+                              });
+                              if (isSubserviceSelected(sub)) triggerBlink(idx);
+                            }}
+                            title={isSubserviceSelected(sub) ? 'Change values' : 'Add as service'}
                           >
-                            {editState[idx].stage === 'idle' && (<><span className="w-5 h-5 flex items-center justify-center bg-white rounded-full text-blue-600 font-bold border border-blue-400">+</span> Add</>)}
-                            {editState[idx].stage === 'editing' && (<><span className="w-5 h-5 flex items-center justify-center bg-white rounded-full text-yellow-600 font-bold border border-yellow-400">✎</span> Confirm</>)}
-                            {editState[idx].stage === 'confirmed' && (<><span className="w-5 h-5 flex items-center justify-center bg-white rounded-full text-green-600 font-bold border border-green-400">&#10003;</span> Change</>)}
+                            {isSubserviceSelected(sub)
+                              ? (<><span className="w-5 h-5 flex items-center justify-center bg-white rounded-full text-green-600 font-bold border border-green-400">&#10003;</span> Change</>)
+                              : (<><span className="w-5 h-5 flex items-center justify-center bg-white rounded-full text-blue-600 font-bold border border-blue-400">+</span> Add</>)}
                           </button>
                           {editState[idx].error && (
                             <div className="text-xs text-red-600 mt-1">{editState[idx].error}</div>
                           )}
                         </td>
-                      </motion.tr>
-                    ))}
+                          </motion.tr>
+                        );
+                    })}
                   </tbody>
                 </table>
               </div>

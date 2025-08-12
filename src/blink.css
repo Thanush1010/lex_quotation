@@ -1,0 +1,10 @@
+@keyframes blink-bg {
+  0% { background-color: inherit; }
+  20% { background-color: #f59e0b33; }
+  40% { background-color: #f59e0b66; }
+  60% { background-color: #f59e0b33; }
+  100% { background-color: inherit; }
+}
+.blink-bg {
+  animation: blink-bg 0.5s linear 1;
+}
