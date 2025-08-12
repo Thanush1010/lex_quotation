@@ -205,6 +205,14 @@ function App() {
               selectedServices={selectedServices} 
               onRemoveService={handleRemoveService} 
             />
+            <div className="flex justify-center">
+              <button
+                onClick={() => setActiveStep('services')}
+                className="bg-gradient-to-r from-amber-500 to-orange-500 text-white py-2 px-6 rounded-lg transition-all duration-300 hover:from-amber-600 hover:to-orange-600 shadow-lg hover:shadow-xl font-semibold mb-4"
+              >
+                Add More
+              </button>
+            </div>
             <TotalCalculation selectedServices={selectedServices} />
             <div className="card-gradient rounded-xl border border-white/10 p-6">
               <h3 className="text-lg font-semibold mb-4 text-gray-100">Generate Quotation</h3>
