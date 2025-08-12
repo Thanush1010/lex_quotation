@@ -19,7 +19,7 @@ const handleSubmit = (e) => {
 };
 
 return (
-    <div className="bg-white rounded-xl shadow-lg p-6 mb-8 animate-fade-in">
+    <div className="bg-white bg-opacity-90 backdrop-blur-md rounded-2xl shadow-2xl p-8 mb-8 animate-fade-in-up">
     <h3 className="text-xl font-semibold mb-4">Client Details</h3>
     <form onSubmit={handleSubmit} className="space-y-4">
         <div>
@@ -46,29 +46,7 @@ return (
         />
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-            <input
-            type="email"
-            name="clientEmail"
-            value={formData.clientEmail}
-            onChange={handleChange}
-            className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-200 focus:border-blue-500"
-            />
-        </div>
-        
-        <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
-            <input
-            type="tel"
-            name="clientPhone"
-            value={formData.clientPhone}
-            onChange={handleChange}
-            className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-200 focus:border-blue-500"
-            />
-        </div>
-        </div>
+    {/* Removed email and phone fields as requested */}
         
         <div className="flex justify-end gap-4 pt-4">
         <button

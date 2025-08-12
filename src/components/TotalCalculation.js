@@ -6,8 +6,9 @@ const TotalCalculation = ({ selectedServices }) => {
   const totals = selectedServices.reduce((acc, item) => {
     acc.total += item.total;
     acc.professionalFees += (item.professionalFee || 0);
+    acc.reimbursement += (typeof item.miscFee === 'number' ? item.miscFee : 0);
     return acc;
-  }, { total: 0, professionalFees: 0 });
+  }, { total: 0, professionalFees: 0, reimbursement: 0 });
 
   const gst = totals.professionalFees * 0.18;
   const tds = totals.professionalFees * 0.10;
@@ -30,6 +31,10 @@ const TotalCalculation = ({ selectedServices }) => {
               <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">₹{totals.total.toLocaleString('en-IN')}</td>
             </tr>
             <tr className="hover:bg-gray-50">
+              <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">Reimbursement</td>
+              <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">₹{totals.reimbursement.toLocaleString('en-IN')}</td>
+            </tr>
+            <tr className="hover:bg-gray-50">
               <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">GST (18%)</td>
               <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">₹{gst.toLocaleString('en-IN')}</td>
             </tr>
@@ -45,7 +50,7 @@ const TotalCalculation = ({ selectedServices }) => {
         </table>
       </div>
       <div className="p-4 bg-blue-50 text-xs text-gray-700">
-        <span className="font-semibold">Note:</span> GST is calculated on professional fees only. TDS is deducted at source as per government regulations.
+  <span className="font-semibold">Note:</span> GST is calculated on professional fees only. TDS is deducted at source as per government regulations. Reimbursement is the sum of all entered reimbursement values.
       </div>
     </div>
   );

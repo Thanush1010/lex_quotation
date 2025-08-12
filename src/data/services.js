@@ -38,6 +38,27 @@ export const services = [
         professionalFee: null,
         miscFee: 0,
         description: 'If required'
+      },
+      {
+        name: 'Industrial Design Registration',
+        officialFee: 1000,
+        professionalFee: null,
+        miscFee: null,
+        description: 'Registration of industrial designs.'
+      },
+      {
+        name: 'Copyright Registration',
+        officialFee: 5000,
+        professionalFee: null,
+        miscFee: null,
+        description: 'Copyright registration services.'
+      },
+      {
+        name: 'Trademark Filing',
+        officialFee: 4500,
+        professionalFee: null,
+        miscFee: null,
+        description: 'Trademark filing services.'
       }
     ],
     note: 'Payment shall be made in stages. Hearing costs apply only if required. GST will be charged separately.'
@@ -122,6 +143,57 @@ export const services = [
         officialFee: 0,
         professionalFee: null,
         miscFee: null
+      },
+      // Trademark prosecution (Opposition Proceeding - Applicant)
+      {
+        name: 'Trademark prosecution (Opposition Proceeding - Applicant): Filing Counter statement',
+        officialFee: 2700,
+        professionalFee: null,
+        miscFee: null,
+        description: 'Filing Counter statement'
+      },
+      {
+        name: 'Trademark prosecution (Opposition Proceeding - Applicant): Filing evidence under rule 46',
+        officialFee: 800,
+        professionalFee: null,
+        miscFee: null,
+        description: 'Filing evidence under rule 46'
+      },
+      {
+        name: 'Trademark prosecution (Opposition Proceeding - Applicant): Hearing',
+        officialFee: 800,
+        professionalFee: null,
+        miscFee: null,
+        description: 'Hearing'
+      },
+      // Trademark prosecution (Opposition Proceeding - Opponent)
+      {
+        name: 'Trademark prosecution (Opposition Proceeding - Opponent): Filing Opposition',
+        officialFee: 2700,
+        professionalFee: null,
+        miscFee: null,
+        description: 'Filing Opposition'
+      },
+      {
+        name: 'Trademark prosecution (Opposition Proceeding - Opponent): Filing evidence under rule 45',
+        officialFee: 800,
+        professionalFee: null,
+        miscFee: null,
+        description: 'Filing evidence under rule 45'
+      },
+      {
+        name: 'Trademark prosecution (Opposition Proceeding - Opponent): Filing evidence under rule 47',
+        officialFee: 800,
+        professionalFee: null,
+        miscFee: null,
+        description: 'Filing evidence under rule 47'
+      },
+      {
+        name: 'Trademark prosecution (Opposition Proceeding - Opponent): Hearing',
+        officialFee: 800,
+        professionalFee: null,
+        miscFee: null,
+        description: 'Hearing'
       }
     ],
     note: 'Payment shall be made stage wise. Stamp duty, notary, and bank charges will be communicated separately.'
@@ -169,7 +241,7 @@ export const services = [
     subservices: [
       { 
         name: 'Copyright filing', 
-        officialFee: 500,
+        officialFee: 5000,
         professionalFee: null,
         miscFee: null,
         description: 'Copyright filing at CRO'
@@ -182,11 +254,11 @@ export const services = [
         description: 'Filing response to objection'
       },
       { 
-        name: 'Hearing attendance and submission', 
-        officialFee: 0,
+        name: 'Trademark filing', 
+        officialFee: 4500,
         professionalFee: null,
         miscFee: null,
-        description: 'If required'
+        description: 'Trademark filing at TMO (Startup/Individual)'
       }
     ],
     note: 'Payment shall be made stage wise. GST will be charged separately.'

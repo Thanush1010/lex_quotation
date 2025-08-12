@@ -4,7 +4,7 @@ const SummaryTable = ({ selectedServices, onRemoveService }) => {
   if (selectedServices.length === 0) return null;
 
   return (
-    <div className="bg-white rounded-xl shadow-lg overflow-hidden mb-8 animate-fade-in">
+  <div className="bg-white bg-opacity-90 backdrop-blur-md rounded-2xl shadow-2xl overflow-hidden mb-8 animate-fade-in-up">
       <h3 className="text-lg font-semibold p-4 bg-gray-100 border-b">Selected Services</h3>
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
