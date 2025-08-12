@@ -1,23 +1,26 @@
 
 
+import React from 'react';
+
 function Footer() {
 	return (
 		<footer
-			className="py-8 mt-12 flex flex-col items-center gap-2 shadow-inner"
+			className="py-8 flex flex-col items-center gap-2 border-t border-white/10"
 			style={{
-				background: 'linear-gradient(90deg, #6A89A7 0%, #BDDDFC 50%, #88BDF2 100%)',
-				color: '#384959',
+				background: 'linear-gradient(to bottom, #0B0E18, #151B2C)',
+				color: '#9CA3AF',
 			}}
 		>
-			<div className="font-bold text-lg tracking-wide" style={{ color: '#384959' }}>AutoIP</div>
-			<div className="text-sm opacity-90" style={{ color: '#384959' }}>Effortless Patent Document Automation</div>
-			<div className="flex flex-col md:flex-row gap-2 md:gap-6 items-center mt-2">
-				<span className="opacity-80" style={{ color: '#384959' }}>&copy; {new Date().getFullYear()} AutoIP. All rights reserved.</span>
-				<span className="hidden md:inline-block" style={{ color: '#384959' }}>|</span>
+			<div className="font-bold text-xl tracking-wide bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-orange-500">
+				IP Quotation
+			</div>
+			<div className="text-sm text-gray-400 mt-1">Streamlining IP services quotation for professionals worldwide</div>
+			<div className="flex items-center gap-4 mt-4">
+				<span className="text-gray-400 text-sm">© {new Date().getFullYear()} IP Quotation. All rights reserved.</span>
+				<span className="text-gray-400">|</span>
 				<a
-					href="mailto:support@autoip.com"
-					className="hover:underline"
-					style={{ color: '#6A89A7' }}
+					href="mailto:support@ipquotation.com"
+					className="text-gray-400 hover:text-amber-400 transition-colors text-sm"
 				>
 					Contact Us
 				</a>

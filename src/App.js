@@ -30,15 +30,8 @@ function App() {
   }, [selectedServices]);
 
   if (showLanding) {
-    return <>
-      <QuotationLandingPage onStart={() => setShowLanding(false)} />
-      <Footer />
-    </>;
+    return <QuotationLandingPage onStart={() => setShowLanding(false)} />;
   }
-
-  // Remove landing page logic, show main quotation maker UI directly
-  // ...existing code for your main quotation maker UI goes here...
-  <Footer />
 
   const handleFeeUpdate = (serviceId, subserviceIndex, field, value) => {
     setSelectedServices(prev => prev.map(service => {
@@ -149,29 +142,35 @@ function App() {
 
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-fuchsia-100 via-sky-100 to-emerald-100 relative overflow-x-hidden">
-      {/* Vibrant, layered backdrops for visual interest */}
-      <div className="absolute -top-40 -left-40 w-[600px] h-[600px] bg-gradient-to-br from-fuchsia-400 via-pink-300 to-yellow-200 opacity-30 rounded-full filter blur-3xl animate-float-slow z-0" />
-      <div className="absolute top-1/3 -right-20 w-[500px] h-[500px] bg-gradient-to-br from-sky-400 via-cyan-300 to-blue-200 opacity-20 rounded-full filter blur-3xl animate-float-medium z-0" />
-      <div className="absolute bottom-20 left-1/4 w-[400px] h-[400px] bg-gradient-to-br from-emerald-300 via-lime-200 to-teal-200 opacity-20 rounded-full filter blur-3xl animate-float-fast z-0" />
-      <div className="absolute top-1/2 left-1/2 w-[300px] h-[300px] bg-gradient-to-br from-yellow-200 via-pink-200 to-fuchsia-300 opacity-20 rounded-full filter blur-2xl animate-float-medium z-0 -translate-x-1/2 -translate-y-1/2" />
+    <div className="min-h-screen flex flex-col dark-theme">
+      {/* Fixed background */}
+      <div className="fixed inset-0 bg-gradient-to-b from-gray-900 via-gray-800 to-black -z-20" />
+      
+      {/* Static background shapes */}
+      <div className="fixed -top-40 -left-40 w-[600px] h-[600px] bg-amber-500/5 rounded-full filter blur-3xl -z-10" />
+      <div className="fixed top-1/3 -right-20 w-[500px] h-[500px] bg-orange-500/5 rounded-full filter blur-3xl -z-10" />
+      <div className="fixed bottom-20 left-1/4 w-[400px] h-[400px] bg-yellow-500/5 rounded-full filter blur-3xl -z-10" />
 
-      <main className="flex-1 z-10 relative px-2 md:px-8 py-8 w-full max-w-7xl mx-auto">
+      <main className="flex-1 z-10 relative px-4 sm:px-6 lg:px-8 py-8 w-full max-w-6xl mx-auto">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-blue-800 mb-2">IP Services Calculator</h1>
-          <h2 className="text-2xl text-gray-600">Get instant quotes for your IP needs</h2>
+          <h1 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-orange-500 mb-2">
+            IP Services Calculator
+          </h1>
+          <h2 className="text-2xl text-gray-400">Get instant quotes for your IP needs</h2>
         </div>
 
         {activeStep === 'services' && (
-          <div className="w-full flex justify-center">
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-10 gap-y-12 mb-8 place-items-center max-w-6xl w-full">
+          <div className="relative w-full max-w-[1400px] mx-auto px-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8 mb-8">
               {servicesData.map(service => (
-                <ServiceCard
-                  key={service.id}
-                  service={service}
-                  onFeeUpdate={handleFeeUpdate}
-                  onSelectSubservice={handleSelectSubservice}
-                />
+                <div key={service.id} className="flex justify-center items-center">
+                  <ServiceCard
+                    service={service}
+                    onFeeUpdate={handleFeeUpdate}
+                    onSelectSubservice={handleSelectSubservice}
+                    selectedServices={selectedServices}
+                  />
+                </div>
               ))}
             </div>
           </div>
@@ -180,7 +179,8 @@ function App() {
         {activeStep === 'client' && (
           <ClientForm 
             onSubmit={handleClientSubmit} 
-            onCancel={() => setActiveStep('services')} 
+            onCancel={() => setActiveStep('services')}
+            initialData={clientData}
           />
         )}
 
@@ -191,15 +191,15 @@ function App() {
               onRemoveService={handleRemoveService} 
             />
             <TotalCalculation selectedServices={selectedServices} />
-            <div className="bg-white rounded-xl shadow-lg p-6">
-              <h3 className="text-lg font-semibold mb-4">Generate Quotation</h3>
+            <div className="card-gradient rounded-xl border border-white/10 p-6">
+              <h3 className="text-lg font-semibold mb-4 text-gray-100">Generate Quotation</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
                 {Array.from(new Set(selectedServices.map(s => (s.service.id || '').toLowerCase()))).map(templateType => (
                   templateOptions[templateType] && (
                     <button
                       key={templateType}
                       onClick={() => generateDocument(templateType)}
-                      className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded transition-colors"
+                      className="bg-gradient-to-r from-amber-500 to-orange-500 text-white py-2 px-4 rounded-lg transition-all duration-300 hover:from-amber-600 hover:to-orange-600 shadow-lg hover:shadow-xl"
                     >
                       {templateOptions[templateType].label}
                     </button>
@@ -210,7 +210,7 @@ function App() {
             <div className="flex justify-between">
               <button
                 onClick={() => setActiveStep('client')}
-                className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded"
+                className="bg-gradient-to-r from-gray-500/50 to-gray-600/50 hover:from-gray-500/70 hover:to-gray-600/70 text-white font-bold py-2 px-6 rounded-lg transition-all duration-300 border border-white/10"
               >
                 Back
               </button>
@@ -220,7 +220,7 @@ function App() {
                   setClientData(null);
                   setActiveStep('services');
                 }}
-                className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold py-2 px-6 rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl"
               >
                 Create New Quotation
               </button>
@@ -232,7 +232,7 @@ function App() {
           <div className="flex justify-center mb-8">
             <button
               onClick={() => setActiveStep('client')}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition-all duration-300 transform hover:scale-105"
+              className="bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold py-3 px-8 rounded-lg shadow-lg transition-all duration-300 hover:from-amber-600 hover:to-orange-600 hover:shadow-xl hover:scale-[1.02]"
             >
               Proceed to Client Details
             </button>
@@ -243,19 +243,28 @@ function App() {
       <style>{`
         @keyframes float-slow {
           0%, 100% { transform: translateY(0) translateX(0); }
-          50% { transform: translateY(-20px) translateX(10px); }
+          50% { transform: translateY(-8px) translateX(4px); }
         }
         @keyframes float-medium {
           0%, 100% { transform: translateY(0) translateX(0); }
-          50% { transform: translateY(-15px) translateX(-15px); }
+          50% { transform: translateY(-6px) translateX(-6px); }
         }
         @keyframes float-fast {
           0%, 100% { transform: translateY(0) translateX(0); }
-          50% { transform: translateY(-10px) translateX(5px); }
+          50% { transform: translateY(-4px) translateX(2px); }
         }
-        .animate-float-slow { animation: float-slow 10s ease-in-out infinite; }
-        .animate-float-medium { animation: float-medium 8s ease-in-out infinite; }
-        .animate-float-fast { animation: float-fast 6s ease-in-out infinite; }
+        .animate-float-slow { 
+          animation: float-slow 12s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+          will-change: transform;
+        }
+        .animate-float-medium { 
+          animation: float-medium 10s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+          will-change: transform;
+        }
+        .animate-float-fast { 
+          animation: float-fast 8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+          will-change: transform;
+        }
       `}</style>
     </div>
   );

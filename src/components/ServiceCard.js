@@ -1,13 +1,46 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const expandAnim = {
-  open: { opacity: 1, scale: 1, transition: { duration: 0.3 } },
-  collapsed: { opacity: 0, scale: 0.9, transition: { duration: 0.2 } }
+  open: { 
+    opacity: 1, 
+    scale: 1,
+    transition: { 
+      duration: 0.3,
+      type: "spring",
+      stiffness: 300,
+      damping: 30
+    }
+  },
+  collapsed: { 
+    opacity: 0, 
+    scale: 0.95,
+    transition: { 
+      duration: 0.2,
+      type: "spring",
+      stiffness: 300,
+      damping: 30
+    }
+  }
+};
+
+// Prevent body scroll when modal is open
+const usePreventScroll = (isOpen) => {
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
 };
 
 const ServiceCard = ({ service, onSelectSubservice, selectedServices }) => {
   const [expanded, setExpanded] = useState(false);
+  usePreventScroll(expanded);
   const [fees, setFees] = useState(
     service.subservices.map(sub => ({
       professionalFee: 0,
@@ -79,21 +112,25 @@ const ServiceCard = ({ service, onSelectSubservice, selectedServices }) => {
     <>
       {/* Card View */}
       <motion.div
-        className="relative bg-white bg-opacity-90 p-7 rounded-3xl shadow-xl border-2 border-transparent cursor-pointer flex flex-col items-center justify-center min-w-[180px] max-w-[240px] w-full mb-2 transition-all duration-300 group hover:scale-105 hover:shadow-2xl hover:border-blue-300"
-        style={{ boxShadow: '0 4px 32px 0 rgba(24,90,219,0.08)' }}
+        className="card-gradient p-7 rounded-3xl border border-white/10 cursor-pointer flex flex-col items-center justify-center w-[200px] h-[180px] transition-all duration-300 group"
         onClick={() => setExpanded(true)}
-        whileHover={{ scale: 1.07 }}
+        whileHover={{ 
+          scale: 1.02,
+          y: -3,
+          transition: { duration: 0.3, ease: "easeOut" }
+        }}
+        layout
       >
         {service.icon && (
           <span className="text-4xl mb-2 drop-shadow-sm">
             {service.icon}
           </span>
         )}
-        <h3 className="text-xl font-extrabold text-blue-700 text-center tracking-tight mb-1 group-hover:text-blue-800">
+        <h3 className="text-xl font-bold text-gray-100 text-center tracking-tight mb-1">
           {service.name}
         </h3>
         {service.description && (
-          <p className="text-xs text-blue-400 text-center font-medium mb-1">
+          <p className="text-sm text-gray-400 text-center font-medium mb-1">
             {service.description}
           </p>
         )}
@@ -104,43 +141,45 @@ const ServiceCard = ({ service, onSelectSubservice, selectedServices }) => {
         {expanded && (
           <motion.div
             key="expand"
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 py-6"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm overscroll-none"
             initial="collapsed"
             animate="open"
             exit="collapsed"
             variants={expandAnim}
-            style={{ overflow: "auto" }}
+            style={{ overflow: "hidden" }}
+            onClick={(e) => e.target === e.currentTarget && setExpanded(false)}
           >
             <div
-              className="bg-white rounded-3xl shadow-2xl border-2 border-blue-200 w-full max-w-[95vw] max-h-[90vh] p-6 relative flex flex-col"
+              className="card-gradient rounded-3xl shadow-2xl border border-white/10 w-full max-w-[90vw] max-h-[85vh] p-6 relative flex flex-col"
+              style={{ overflowY: 'auto', scrollbarGutter: 'stable' }}
             >
-              <div className="w-full overflow-auto">
+              <div className="w-full relative">
                 <div className="mb-4">
-                  <h3 className="text-xl font-bold text-blue-800 text-center">Select Subservices</h3>
-                  <p className="text-sm text-blue-500 text-center">Click the checklist to select or deselect subservices. Selected items are highlighted below and in the table.</p>
+                  <h3 className="text-xl font-bold text-amber-400 text-center mb-2">Select Subservices</h3>
+                  <p className="text-sm text-gray-400 text-center">Click the checklist to select or deselect subservices. Selected items are highlighted below and in the table.</p>
                 </div>
                 {/* Selected summary */}
                 {service.subservices.some(isSubserviceSelected) && (
-                  <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg flex flex-wrap gap-2 items-center justify-center">
-                    <span className="font-semibold text-green-700">Selected:</span>
+                  <div className="mb-4 p-3 bg-green-900/20 border border-green-500/30 rounded-lg flex flex-wrap gap-2 items-center justify-center">
+                    <span className="font-semibold text-green-400">Selected:</span>
                     {service.subservices.map((sub, idx) =>
                       isSubserviceSelected(sub) ? (
-                        <span key={idx} className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs border border-green-300 flex items-center gap-1">
-                          <span className="text-green-600">&#10003;</span> {sub.name}
+                        <span key={idx} className="px-2 py-1 bg-green-900/30 text-green-400 rounded-full text-xs border border-green-500/30 flex items-center gap-1">
+                          <span className="text-green-400">&#10003;</span> {sub.name}
                         </span>
                       ) : null
                     )}
                   </div>
                 )}
-                <table className="min-w-full text-base rounded-2xl overflow-hidden shadow border border-blue-100">
-                  <thead className="bg-gradient-to-r from-blue-50 to-blue-100 sticky top-0 z-10">
+                <table className="min-w-full text-base rounded-2xl overflow-hidden border border-white/10">
+                  <thead className="bg-gradient-to-r from-amber-500/10 to-orange-500/10 sticky top-0 z-10 border-b border-white/10">
                     <tr>
-                      <th className="px-5 py-3 text-left font-bold text-blue-700 uppercase tracking-wider">Particulars</th>
-                      <th className="px-5 py-3 text-left font-bold text-blue-700 uppercase tracking-wider">Official Fee (₹)</th>
-                      <th className="px-5 py-3 text-left font-bold text-blue-700 uppercase tracking-wider">Professional Fee (₹)</th>
-                      <th className="px-5 py-3 text-left font-bold text-blue-700 uppercase tracking-wider">Reimbursement (₹)</th>
-                      <th className="px-5 py-3 text-left font-bold text-blue-700 uppercase tracking-wider">Total (₹)</th>
-                      <th className="px-5 py-3 text-left font-bold text-blue-700 uppercase tracking-wider">Action</th>
+                      <th className="px-5 py-3 text-left font-bold text-gray-200 uppercase tracking-wider">Particulars</th>
+                      <th className="px-5 py-3 text-left font-bold text-gray-200 uppercase tracking-wider">Official Fee (₹)</th>
+                      <th className="px-5 py-3 text-left font-bold text-gray-200 uppercase tracking-wider">Professional Fee (₹)</th>
+                      <th className="px-5 py-3 text-left font-bold text-gray-200 uppercase tracking-wider">Reimbursement (₹)</th>
+                      <th className="px-5 py-3 text-left font-bold text-gray-200 uppercase tracking-wider">Total (₹)</th>
+                      <th className="px-5 py-3 text-left font-bold text-gray-200 uppercase tracking-wider">Action</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -152,17 +191,17 @@ const ServiceCard = ({ service, onSelectSubservice, selectedServices }) => {
                         exit={{ opacity: 0, y: 20 }}
                         transition={{ duration: 0.3, delay: idx * 0.05 }}
                         className={
-                          `transition-colors duration-200 ${isSubserviceSelected(sub) ? 'bg-green-50 border-l-4 border-green-400' : (idx % 2 === 0 ? 'bg-white' : 'bg-blue-50')} hover:bg-blue-100`
+                          `transition-colors duration-200 ${isSubserviceSelected(sub) ? 'bg-green-900/20 border-l-4 border-green-500' : (idx % 2 === 0 ? 'bg-white/5' : 'bg-white/10')} hover:bg-white/20`
                         }
                       >
-                        <td className="px-5 py-3 font-medium text-blue-900">{sub.name}</td>
-                        <td className="px-5 py-3 text-blue-700 font-semibold">{sub.officialFee}</td>
+                        <td className="px-5 py-3 font-medium text-gray-200">{sub.name}</td>
+                        <td className="px-5 py-3 text-gray-300 font-semibold">{sub.officialFee}</td>
                         <td className="px-5 py-3">
                           <input
                             type="number"
                             value={fees[idx]?.professionalFee || ""}
                             onChange={e => handleFeeChange(idx, "professionalFee", e.target.value)}
-                            className={`w-24 p-2 border rounded-lg focus:ring-2 focus:ring-blue-200 focus:border-blue-400 bg-white shadow-sm ${editState[idx].stage === 'confirmed' ? 'border-green-300 bg-green-50 text-green-700' : 'border-blue-200'}`}
+                            className={`w-24 p-2 border rounded-lg focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 bg-white/10 shadow-sm text-gray-200 ${editState[idx].stage === 'confirmed' ? 'border-green-500/50 bg-green-900/20 text-green-400' : 'border-white/20'}`}
                             min="0"
                             disabled={editState[idx].stage !== 'editing'}
                           />
@@ -172,21 +211,21 @@ const ServiceCard = ({ service, onSelectSubservice, selectedServices }) => {
                             type="number"
                             value={fees[idx]?.reimbursement || ""}
                             onChange={e => handleFeeChange(idx, "reimbursement", e.target.value)}
-                            className={`w-24 p-2 border rounded-lg focus:ring-2 focus:ring-blue-200 focus:border-blue-400 bg-white shadow-sm ${editState[idx].stage === 'confirmed' ? 'border-green-300 bg-green-50 text-green-700' : 'border-blue-200'}`}
+                            className={`w-24 p-2 border rounded-lg focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 bg-white/10 shadow-sm text-gray-200 ${editState[idx].stage === 'confirmed' ? 'border-green-500/50 bg-green-900/20 text-green-400' : 'border-white/20'}`}
                             min="0"
                             aria-label="Reimbursement"
                             disabled={editState[idx].stage !== 'editing'}
                           />
                         </td>
-                        <td className="px-5 py-3 font-bold text-blue-800">
+                        <td className="px-5 py-3 font-bold text-amber-400">
                           {getTotal(idx, sub.officialFee)}
                         </td>
                         <td className="px-5 py-3">
                           <button
-                            className={`px-4 py-2 rounded-lg font-semibold shadow transition-all duration-200 flex items-center gap-2
-                              ${editState[idx].stage === 'idle' ? 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white' : ''}
-                              ${editState[idx].stage === 'editing' ? 'bg-yellow-500 text-white hover:bg-yellow-600' : ''}
-                              ${editState[idx].stage === 'confirmed' ? 'bg-green-500 text-white hover:bg-green-600' : ''}`}
+                            className={`px-4 py-2 rounded-lg font-semibold shadow transition-all duration-300 flex items-center gap-2
+                              ${editState[idx].stage === 'idle' ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:from-amber-600 hover:to-orange-600' : ''}
+                              ${editState[idx].stage === 'editing' ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:from-amber-600 hover:to-orange-600' : ''}
+                              ${editState[idx].stage === 'confirmed' ? 'bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700' : ''}`}
                             onClick={() => handleChecklistToggle(sub, idx)}
                             title={
                               editState[idx].stage === 'idle' ? 'Add and enter values' :
@@ -210,17 +249,17 @@ const ServiceCard = ({ service, onSelectSubservice, selectedServices }) => {
 
               {service.note && (
                 <motion.div
-                  className="mt-4 p-3 bg-blue-50 rounded-lg text-sm text-blue-700 w-full"
+                  className="mt-4 p-3 bg-white/5 border border-white/10 rounded-lg text-sm text-gray-300 w-full"
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4 }}
                 >
-                  <span className="font-semibold">Note:</span> {service.note}
+                  <span className="font-semibold text-amber-400">Note:</span> {service.note}
                 </motion.div>
               )}
 
               <button
-                className="absolute top-3 right-4 text-2xl text-blue-400 hover:text-blue-700 font-bold bg-white rounded-full shadow p-1 z-10"
+                className="absolute top-3 right-4 text-2xl text-gray-400 hover:text-white font-bold bg-white/10 hover:bg-white/20 rounded-full shadow-lg p-1 z-10 transition-colors duration-200"
                 onClick={() => setExpanded(false)}
                 aria-label="Close"
               >

@@ -2,6 +2,58 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+body {
+  background: linear-gradient(to bottom, #111827, #1F2937, #000000);
+  min-height: 100vh;
+  color: #f3f4f6;
+}
+
+.card-gradient {
+  background: linear-gradient(to bottom right, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+  backdrop-filter: blur(16px);
+}
+
+.nav-gradient {
+  background: linear-gradient(to right, rgba(0, 0, 0, 0.8), rgba(17, 24, 39, 0.8), rgba(0, 0, 0, 0.8));
+  backdrop-filter: blur(8px);
+}
+
+.heading-gradient {
+  background: linear-gradient(to right, #f97316, #f59e0b);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.button-gradient {
+  background: linear-gradient(to right, #f97316, #f59e0b);
+  transition: all 0.3s ease;
+}
+
+.button-gradient:hover {
+  background: linear-gradient(to right, #ea580c, #d97706);
+}
+
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
