@@ -79,6 +79,7 @@ const QuotationFlow = () => {
             <SummaryTable
               selectedServices={selectedServices}
               clientData={clientData}
+              onLoadPreset={services => setSelectedServices(services)}
             />
             <TotalCalculation selectedServices={selectedServices} />
           </>

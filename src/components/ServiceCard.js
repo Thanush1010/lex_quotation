@@ -3,20 +3,20 @@ import '../../src/blink.css';
 import { motion, AnimatePresence } from "framer-motion";
 
 const expandAnim = {
-  open: { 
-    opacity: 1, 
+  open: {
+    opacity: 1,
     scale: 1,
-    transition: { 
+    transition: {
       duration: 0.3,
       type: "spring",
       stiffness: 300,
       damping: 30
     }
   },
-  collapsed: { 
-    opacity: 0, 
+  collapsed: {
+    opacity: 0,
     scale: 0.95,
-    transition: { 
+    transition: {
       duration: 0.2,
       type: "spring",
       stiffness: 300,
@@ -48,6 +48,55 @@ const ServiceCard = ({ service, onSelectSubservice, selectedServices }) => {
       reimbursement: 0
     }))
   );
+
+  // Preset logic
+  const localStorageKey = `fee-presets-${service.id}`;
+  const [presets, setPresets] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem(localStorageKey)) || [];
+    } catch {
+      return [];
+    }
+  });
+  const [presetName, setPresetName] = useState("");
+  const [selectedPreset, setSelectedPreset] = useState(null);
+
+  // Must be after fees is defined
+  const allFieldsEmpty = Array.isArray(fees) && fees.every(f =>
+    (!f.professionalFee || f.professionalFee === 0) && (!f.reimbursement || f.reimbursement === 0)
+  );
+
+  const handleSavePreset = () => {
+    if (!presetName.trim() || allFieldsEmpty) return;
+    const newPreset = {
+      name: presetName.trim(),
+      fees: fees
+    };
+    const updated = [...presets.filter(p => p.name !== newPreset.name), newPreset];
+    setPresets(updated);
+    localStorage.setItem(localStorageKey, JSON.stringify(updated));
+    setPresetName("");
+  };
+
+  // Load preset
+  const handleLoadPreset = (name) => {
+    const preset = presets.find(p => p.name === name);
+    if (preset && Array.isArray(preset.fees)) {
+      setFees(preset.fees.map(f => ({
+        professionalFee: f.professionalFee || 0,
+        reimbursement: f.reimbursement || 0
+      })));
+      setSelectedPreset(name);
+    }
+  };
+
+  // Delete preset
+  const handleDeletePreset = (name) => {
+    const updated = presets.filter(p => p.name !== name);
+    setPresets(updated);
+    localStorage.setItem(localStorageKey, JSON.stringify(updated));
+    if (selectedPreset === name) setSelectedPreset(null);
+  };
 
   // Blink state for each row
   const [blinkRows, setBlinkRows] = useState(service.subservices.map(() => false));
@@ -94,7 +143,7 @@ const ServiceCard = ({ service, onSelectSubservice, selectedServices }) => {
     return (
       Number(officialFee) +
       Number(fees[index]?.professionalFee || 0) +
-  Number(fees[index]?.reimbursement || 0)
+      Number(fees[index]?.reimbursement || 0)
     );
   };
 
@@ -141,7 +190,7 @@ const ServiceCard = ({ service, onSelectSubservice, selectedServices }) => {
       <motion.div
         className="card-gradient p-7 rounded-3xl border border-white/10 cursor-pointer flex flex-col items-center justify-center w-[200px] h-[180px] transition-all duration-300 group"
         onClick={() => setExpanded(true)}
-        whileHover={{ 
+        whileHover={{
           scale: 1.02,
           y: -3,
           transition: { duration: 0.3, ease: "easeOut" }
@@ -198,6 +247,42 @@ const ServiceCard = ({ service, onSelectSubservice, selectedServices }) => {
                     )}
                   </div>
                 )}
+                {/* Preset Controls */}
+                <div className="flex flex-wrap gap-2 mb-3 items-center">
+                  <input
+                    type="text"
+                    placeholder="Preset name"
+                    value={presetName}
+                    onChange={e => setPresetName(e.target.value)}
+                    className="p-2 rounded border border-white/20 bg-white/10 text-gray-200 w-40"
+                  />
+                  <button
+                    onClick={handleSavePreset}
+                    className={`px-3 py-2 rounded font-semibold transition ${(!presetName.trim() || allFieldsEmpty) ? 'bg-gray-400 text-gray-200 cursor-not-allowed' : 'bg-amber-500 text-white hover:bg-amber-600'}`}
+                    disabled={!presetName.trim() || allFieldsEmpty}
+                  >Save Preset</button>
+                  {presets.length > 0 && (
+                    <>
+                      <select
+                        value={selectedPreset || ""}
+                        onChange={e => handleLoadPreset(e.target.value)}
+                        className="p-2 rounded border border-white/20 bg-white/10 text-white font-semibold"
+                        style={{ color: '#fff', backgroundColor: 'rgba(30,30,30,0.95)' }}
+                      >
+                        <option value="">Load Preset</option>
+                        {presets.map(p => (
+                          <option key={p.name} value={p.name}>{p.name}</option>
+                        ))}
+                      </select>
+                      {selectedPreset && (
+                        <button
+                          onClick={() => handleDeletePreset(selectedPreset)}
+                          className="ml-2 px-2 py-1 rounded bg-red-500 text-white text-xs hover:bg-red-600"
+                        >Delete</button>
+                      )}
+                    </>
+                  )}
+                </div>
                 <table className="min-w-full text-base rounded-2xl overflow-hidden border border-white/10">
                   <thead className="bg-gradient-to-r from-amber-500/10 to-orange-500/10 sticky top-0 z-10 border-b border-white/10">
                     <tr>
@@ -211,66 +296,66 @@ const ServiceCard = ({ service, onSelectSubservice, selectedServices }) => {
                   </thead>
                   <tbody>
                     {service.subservices.map((sub, idx) => {
-                        return (
-                          <motion.tr
-                            key={idx}
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: 20 }}
-                            transition={{ duration: 0.3, delay: idx * 0.05 }}
-                            className={`transition-colors duration-200 ${isSubserviceSelected(sub) ? 'bg-green-900/20 border-l-4 border-green-500' : (idx % 2 === 0 ? 'bg-white/5' : 'bg-white/10')} hover:bg-white/20 ${blinkRows[idx] ? 'blink-bg' : ''}`}
-                          >
-                        <td className="px-5 py-3 font-medium text-gray-200">{sub.name}</td>
-                        <td className="px-5 py-3 text-gray-300 font-semibold">{sub.officialFee}</td>
-                        <td className="px-5 py-3">
-                          <input
-                            type="number"
-                            value={fees[idx]?.professionalFee || ""}
-                            onChange={e => handleFeeChange(idx, "professionalFee", e.target.value)}
-                            className={`w-24 p-2 border rounded-lg focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 bg-white/10 shadow-sm text-gray-200 border-white/20`}
-                            min="0"
-                          />
-                        </td>
-                        <td className="px-5 py-3">
-                          <input
-                            type="number"
-                            value={fees[idx]?.reimbursement || ""}
-                            onChange={e => handleFeeChange(idx, "reimbursement", e.target.value)}
-                            className={`w-24 p-2 border rounded-lg focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 bg-white/10 shadow-sm text-gray-200 border-white/20`}
-                            min="0"
-                            aria-label="Reimbursement"
-                          />
-                        </td>
-                        <td className="px-5 py-3 font-bold text-amber-400">
-                          {getTotal(idx, sub.officialFee)}
-                        </td>
-                        <td className="px-5 py-3">
-                          <button
-                            className={`px-4 py-2 rounded-lg font-semibold shadow transition-all duration-300 flex items-center gap-2
+                      return (
+                        <motion.tr
+                          key={idx}
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: 20 }}
+                          transition={{ duration: 0.3, delay: idx * 0.05 }}
+                          className={`transition-colors duration-200 ${isSubserviceSelected(sub) ? 'bg-green-900/20 border-l-4 border-green-500' : (idx % 2 === 0 ? 'bg-white/5' : 'bg-white/10')} hover:bg-white/20 ${blinkRows[idx] ? 'blink-bg' : ''}`}
+                        >
+                          <td className="px-5 py-3 font-medium text-gray-200">{sub.name}</td>
+                          <td className="px-5 py-3 text-gray-300 font-semibold">{sub.officialFee}</td>
+                          <td className="px-5 py-3">
+                            <input
+                              type="number"
+                              value={fees[idx]?.professionalFee || ""}
+                              onChange={e => handleFeeChange(idx, "professionalFee", e.target.value)}
+                              className={`w-24 p-2 border rounded-lg focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 bg-white/10 shadow-sm text-gray-200 border-white/20`}
+                              min="0"
+                            />
+                          </td>
+                          <td className="px-5 py-3">
+                            <input
+                              type="number"
+                              value={fees[idx]?.reimbursement || ""}
+                              onChange={e => handleFeeChange(idx, "reimbursement", e.target.value)}
+                              className={`w-24 p-2 border rounded-lg focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 bg-white/10 shadow-sm text-gray-200 border-white/20`}
+                              min="0"
+                              aria-label="Reimbursement"
+                            />
+                          </td>
+                          <td className="px-5 py-3 font-bold text-amber-400">
+                            {getTotal(idx, sub.officialFee)}
+                          </td>
+                          <td className="px-5 py-3">
+                            <button
+                              className={`px-4 py-2 rounded-lg font-semibold shadow transition-all duration-300 flex items-center gap-2
                               ${isSubserviceSelected(sub) ? 'bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700' : 'bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:from-amber-600 hover:to-orange-600'}`}
-                            onClick={() => {
-                              onSelectSubservice(service, {
-                                ...sub,
-                                officialFee: sub.officialFee,
-                                professionalFee: fees[idx].professionalFee,
-                                reimbursement: fees[idx].reimbursement,
-                                miscFee: fees[idx].reimbursement, // for compatibility
-                                total: Number(sub.officialFee) + Number(fees[idx].professionalFee) + Number(fees[idx].reimbursement)
-                              });
-                              if (isSubserviceSelected(sub)) triggerBlink(idx);
-                            }}
-                            title={isSubserviceSelected(sub) ? 'Change values' : 'Add as service'}
-                          >
-                            {isSubserviceSelected(sub)
-                              ? (<><span className="w-5 h-5 flex items-center justify-center bg-white rounded-full text-green-600 font-bold border border-green-400">&#10003;</span> Change</>)
-                              : (<><span className="w-5 h-5 flex items-center justify-center bg-white rounded-full text-blue-600 font-bold border border-blue-400">+</span> Add</>)}
-                          </button>
-                          {editState[idx].error && (
-                            <div className="text-xs text-red-600 mt-1">{editState[idx].error}</div>
-                          )}
-                        </td>
-                          </motion.tr>
-                        );
+                              onClick={() => {
+                                onSelectSubservice(service, {
+                                  ...sub,
+                                  officialFee: sub.officialFee,
+                                  professionalFee: fees[idx].professionalFee,
+                                  reimbursement: fees[idx].reimbursement,
+                                  miscFee: fees[idx].reimbursement, // for compatibility
+                                  total: Number(sub.officialFee) + Number(fees[idx].professionalFee) + Number(fees[idx].reimbursement)
+                                });
+                                if (isSubserviceSelected(sub)) triggerBlink(idx);
+                              }}
+                              title={isSubserviceSelected(sub) ? 'Change values' : 'Add as service'}
+                            >
+                              {isSubserviceSelected(sub)
+                                ? (<><span className="w-5 h-5 flex items-center justify-center bg-white rounded-full text-green-600 font-bold border border-green-400">&#10003;</span> Change</>)
+                                : (<><span className="w-5 h-5 flex items-center justify-center bg-white rounded-full text-blue-600 font-bold border border-blue-400">+</span> Add</>)}
+                            </button>
+                            {editState[idx].error && (
+                              <div className="text-xs text-red-600 mt-1">{editState[idx].error}</div>
+                            )}
+                          </td>
+                        </motion.tr>
+                      );
                     })}
                   </tbody>
                 </table>

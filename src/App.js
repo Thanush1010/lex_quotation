@@ -89,78 +89,78 @@ function App() {
   };
 
   const generateDocument = async (templateType) => {
-  if (!clientData) {
-    alert('Please fill client details first');
-    setActiveStep('client');
-    return;
-  }
-
-  try {
-    // Filter services so only the clicked category is included
-    const filteredServices = selectedServices.filter(
-      s => (s.service.id || '').toLowerCase() === templateType
-    );
-
-    if (filteredServices.length === 0) {
-      alert(`No services selected for ${templateOptions[templateType].label}`);
+    if (!clientData) {
+      alert('Please fill client details first');
+      setActiveStep('client');
       return;
     }
 
-    // Calculate totals from filtered list
-    const subtotal = filteredServices.reduce((sum, s) => sum + (s.total || 0), 0);
-    const professionalFeesSum = filteredServices.reduce((sum, s) => sum + (s.professionalFee || 0), 0);
-    const gst = professionalFeesSum * 0.18;
-    const tds = professionalFeesSum * 0.10;
-    const grandTotal = subtotal + gst - tds;
+    try {
+      // Filter services so only the clicked category is included
+      const filteredServices = selectedServices.filter(
+        s => (s.service.id || '').toLowerCase() === templateType
+      );
 
-    // Fetch the matching template file
-    const response = await fetch(`/templates/${templateType}-template.docx`);
-    if (!response.ok) throw new Error(`Template not found: ${templateType}-template.docx`);
-    const arrayBuffer = await response.arrayBuffer();
-    const zip = new PizZip(arrayBuffer);
-    const doc = new Docxtemplater(zip, { paragraphLoop: true, linebreaks: true });
+      if (filteredServices.length === 0) {
+        alert(`No services selected for ${templateOptions[templateType].label}`);
+        return;
+      }
 
-    // Build data for template
-    const data = {
-      ...clientData,
-      quotationNumber: `LXR-${Date.now().toString().slice(-6)}`,
-      quotationDate: new Date().toLocaleDateString('en-IN', {
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric'
-      }),
-      services: filteredServices.map((service, index) => ({
-        srNo: index + 1,
-        name: service.subservice.name,
-        officialFee: (service.officialFee || 0).toLocaleString('en-IN'),
-        professionalFee: (service.professionalFee || 0).toLocaleString('en-IN'),
-        miscFee: (service.miscFee || 0).toLocaleString('en-IN'),
-        total: (service.total || 0).toLocaleString('en-IN')
-      })),
-      subtotal: subtotal.toLocaleString('en-IN'),
-      gst: gst.toLocaleString('en-IN'),
-      tds: tds.toLocaleString('en-IN'),
-      grandTotal: grandTotal.toLocaleString('en-IN'),
-      terms: templateOptions[templateType].terms
-    };
+      // Calculate totals from filtered list
+      const subtotal = filteredServices.reduce((sum, s) => sum + (s.total || 0), 0);
+      const professionalFeesSum = filteredServices.reduce((sum, s) => sum + (s.professionalFee || 0), 0);
+      const gst = professionalFeesSum * 0.18;
+      const tds = professionalFeesSum * 0.10;
+      const grandTotal = subtotal + gst - tds;
 
-    // Generate and save docx
-    doc.render(data);
-    const out = doc.getZip().generate({ type: "blob" });
-    saveAs(out, `Quotation-${templateOptions[templateType].label}-${data.quotationNumber}.docx`);
+      // Fetch the matching template file
+      const response = await fetch(`/templates/${templateType}-template.docx`);
+      if (!response.ok) throw new Error(`Template not found: ${templateType}-template.docx`);
+      const arrayBuffer = await response.arrayBuffer();
+      const zip = new PizZip(arrayBuffer);
+      const doc = new Docxtemplater(zip, { paragraphLoop: true, linebreaks: true });
 
-  } catch (error) {
-    console.error("Error generating document:", error);
-    alert("Document generation failed: " + error.message);
-  }
-};
+      // Build data for template
+      const data = {
+        ...clientData,
+        quotationNumber: `LXR-${Date.now().toString().slice(-6)}`,
+        quotationDate: new Date().toLocaleDateString('en-IN', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric'
+        }),
+        services: filteredServices.map((service, index) => ({
+          srNo: index + 1,
+          name: service.subservice.name,
+          officialFee: (service.officialFee || 0).toLocaleString('en-IN'),
+          professionalFee: (service.professionalFee || 0).toLocaleString('en-IN'),
+          miscFee: (service.miscFee || 0).toLocaleString('en-IN'),
+          total: (service.total || 0).toLocaleString('en-IN')
+        })),
+        subtotal: subtotal.toLocaleString('en-IN'),
+        gst: gst.toLocaleString('en-IN'),
+        tds: tds.toLocaleString('en-IN'),
+        grandTotal: grandTotal.toLocaleString('en-IN'),
+        terms: templateOptions[templateType].terms
+      };
+
+      // Generate and save docx
+      doc.render(data);
+      const out = doc.getZip().generate({ type: "blob" });
+      saveAs(out, `Quotation-${templateOptions[templateType].label}-${data.quotationNumber}.docx`);
+
+    } catch (error) {
+      console.error("Error generating document:", error);
+      alert("Document generation failed: " + error.message);
+    }
+  };
 
 
   return (
     <div className="min-h-screen flex flex-col dark-theme">
       {/* Fixed background */}
       <div className="fixed inset-0 bg-gradient-to-b from-gray-900 via-gray-800 to-black -z-20" />
-      
+
       {/* Static background shapes */}
       <div className="fixed -top-40 -left-40 w-[600px] h-[600px] bg-amber-500/5 rounded-full filter blur-3xl -z-10" />
       <div className="fixed top-1/3 -right-20 w-[500px] h-[500px] bg-orange-500/5 rounded-full filter blur-3xl -z-10" />
@@ -192,8 +192,8 @@ function App() {
         )}
 
         {activeStep === 'client' && (
-          <ClientForm 
-            onSubmit={handleClientSubmit} 
+          <ClientForm
+            onSubmit={handleClientSubmit}
             onCancel={() => setActiveStep('services')}
             initialData={clientData}
           />
@@ -201,9 +201,9 @@ function App() {
 
         {activeStep === 'summary' && clientData && (
           <div className="space-y-8">
-            <SummaryTable 
-              selectedServices={selectedServices} 
-              onRemoveService={handleRemoveService} 
+            <SummaryTable
+              selectedServices={selectedServices}
+              onRemoveService={handleRemoveService}
             />
             <div className="flex justify-center">
               <button
