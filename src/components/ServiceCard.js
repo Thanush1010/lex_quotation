@@ -332,8 +332,10 @@ const ServiceCard = ({ service, onSelectSubservice, selectedServices }) => {
                           <td className="px-5 py-3">
                             <button
                               className={`px-4 py-2 rounded-lg font-semibold shadow transition-all duration-300 flex items-center gap-2
-                              ${isSubserviceSelected(sub) ? 'bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700' : 'bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:from-amber-600 hover:to-orange-600'}`}
+                              ${isSubserviceSelected(sub) ? 'bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700' : 'bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:from-amber-600 hover:to-orange-600'}
+                              ${(!isSubserviceSelected(sub) && (!fees[idx]?.professionalFee && !fees[idx]?.reimbursement)) ? 'opacity-50 cursor-not-allowed' : ''}`}
                               onClick={() => {
+                                if (!isSubserviceSelected(sub) && (!fees[idx]?.professionalFee && !fees[idx]?.reimbursement)) return;
                                 onSelectSubservice(service, {
                                   ...sub,
                                   officialFee: sub.officialFee,
@@ -345,6 +347,7 @@ const ServiceCard = ({ service, onSelectSubservice, selectedServices }) => {
                                 if (isSubserviceSelected(sub)) triggerBlink(idx);
                               }}
                               title={isSubserviceSelected(sub) ? 'Change values' : 'Add as service'}
+                              disabled={!isSubserviceSelected(sub) && (!fees[idx]?.professionalFee && !fees[idx]?.reimbursement)}
                             >
                               {isSubserviceSelected(sub)
                                 ? (<><span className="w-5 h-5 flex items-center justify-center bg-white rounded-full text-green-600 font-bold border border-green-400">&#10003;</span> Change</>)
